@@ -7,7 +7,15 @@
   //   same chip architecture (no x86-on-arm emulation), which the multi-arch
   //   base image handles automatically.
   "name": "Asset Manager — App Modernization Workshop",
-  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+  // Custom Dockerfile (see ./Dockerfile) layered on top of
+  // mcr.microsoft.com/devcontainers/java:1-21-bookworm. It only removes the
+  // base image's stale Yarn apt source so feature installs that run
+  // `apt-get update` (e.g. docker-outside-of-docker) don't fail when the
+  // Yarn GPG signing key rotates. The multi-arch (amd64 + arm64) promise is
+  // preserved because we keep the same base image.
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {
     // Add JDK 8 (Temurin) alongside the base image's Microsoft OpenJDK 21.
     // JDK 8 is required for the "before" state of the app; JDK 21 is the

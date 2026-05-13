@@ -136,6 +136,7 @@ Host Docker socket is exposed via the `docker-outside-of-docker` feature (not a 
 | Issue                                | Resolution |
 |--------------------------------------|------------|
 | Container won't start                | Confirm Docker Desktop is running; allocate ≥ 4 GB RAM |
+| Build fails on a feature with `GPG error … NO_PUBKEY 62D54FD4003F6525` from `dl.yarnpkg.com` | Known issue: the base image ships a Yarn apt source whose signing key rotates. [Dockerfile](Dockerfile) strips that source before features run, so a plain rebuild fixes it. If you forked an older copy of `.devcontainer`, pull the latest `Dockerfile`. |
 | `docker: command not found` inside   | The `docker-outside-of-docker` feature needs the host socket — restart Docker Desktop and rebuild |
 | `gh: not authenticated`              | Set `GH_TOKEN` in VS Code User Settings (above) and rebuild |
 | `mvnw` reports JDK 21 but you wanted JDK 8 | `sdk use java $(sdk list java \| grep -E ' 8\..*tem' \| awk '{print $NF}' \| head -1)` |
