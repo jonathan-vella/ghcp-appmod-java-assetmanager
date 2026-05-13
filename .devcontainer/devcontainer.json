@@ -114,7 +114,8 @@
         "ms-azuretools.vscode-azurecontainerapps",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
         "redhat.vscode-yaml",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-azure-github-copilot"
       ],
       "settings": {
         // Required by the workshop prereqs in README.md.
