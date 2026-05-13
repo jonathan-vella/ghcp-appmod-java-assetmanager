@@ -1,0 +1,141 @@
+{
+  // Dev container for the asset-manager GitHub Copilot app modernization workshop.
+  // - Base image is multi-arch (amd64 + arm64) and runs identically on
+  //   Windows (Docker Desktop / WSL2), macOS (Intel + Apple Silicon), and Linux.
+  // - All features below publish both amd64 and arm64 manifests.
+  // - docker-outside-of-docker requires the container and host to share the
+  //   same chip architecture (no x86-on-arm emulation), which the multi-arch
+  //   base image handles automatically.
+  "name": "Asset Manager — App Modernization Workshop",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+  "features": {
+    // Add JDK 8 (Temurin) alongside the base image's Microsoft OpenJDK 21.
+    // JDK 8 is required for the "before" state of the app; JDK 21 is the
+    // target after the workshop's "Upgrade Runtime & Frameworks" step.
+    // Temurin is used because Microsoft OpenJDK does not ship JDK 8.
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "8",
+      "jdkDistro": "tem",
+      "installMaven": "false"
+    },
+    // Re-use the host Docker socket so scripts/startapp.sh can spin up
+    // Postgres + RabbitMQ, and so the Containerize Applications workshop
+    // step can build images.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "moby": true,
+      "installDockerBuildx": true,
+      "installDockerComposeSwitch": true
+    },
+    // Azure CLI + the extensions the workshop uses for Container Apps,
+    // PostgreSQL passwordless connectivity, and service connector.
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "extensions": "containerapp,rdbms-connect,serviceconnector-passwordless"
+    },
+    // Azure Developer CLI (azd) — used by some deployment paths.
+    "ghcr.io/azure/azure-dev/azd:latest": {},
+    // For the optional AKS deployment path described in the README.
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  // Workshop runs the web app at 8080 and the RabbitMQ management UI at 15672.
+  // Postgres (5432) and RabbitMQ AMQP (5672) are forwarded silently for
+  // local clients but not auto-opened.
+  "forwardPorts": [
+    8080,
+    5432,
+    5672,
+    15672
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Asset Manager Web",
+      "onAutoForward": "openPreview"
+    },
+    "15672": {
+      "label": "RabbitMQ Management"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "5672": {
+      "label": "RabbitMQ AMQP",
+      "onAutoForward": "silent"
+    }
+  },
+  // Pass GH_TOKEN from host → container. The gh CLI uses it automatically;
+  // no `gh auth login` is needed inside the container. Each user sets this
+  // once in VS Code User Settings (Ctrl+, → Open Settings (JSON)):
+  //
+  //   "terminal.integrated.env.linux":   { "GH_TOKEN": "github_pat_yourTokenHere" }
+  //   "terminal.integrated.env.osx":     { "GH_TOKEN": "github_pat_yourTokenHere" }
+  //   "terminal.integrated.env.windows": { "GH_TOKEN": "github_pat_yourTokenHere" }
+  //
+  // This is the ONLY supported method — shell exports (.bashrc / .profile /
+  // PowerShell `$env:`) do NOT propagate reliably into devcontainers because
+  // VS Code's process environment only inherits from the specific shell
+  // session that launched it. Value is empty if not set — gh CLI then falls
+  // back to its normal auth flow.
+  "remoteEnv": {
+    "GH_TOKEN": "${localEnv:GH_TOKEN}"
+  },
+  // Persist GitHub CLI config (~/.config/gh) across rebuilds via a named
+  // volume keyed to this devcontainer instance.
+  "mounts": [
+    {
+      "source": "devcontainer-gh-config-${devcontainerId}",
+      "target": "/home/vscode/.config/gh",
+      "type": "volume"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // GitHub Copilot app modernization extension — the workshop driver.
+        "vscjava.migrate-java-to-azure",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        // Java + Spring Boot tooling.
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "vscjava.vscode-spring-boot-dashboard",
+        // Containerization + Azure deployment helpers.
+        "ms-azuretools.vscode-containers",
+        "ms-azuretools.vscode-docker",
+        "ms-azuretools.azure-dev",
+        "ms-azuretools.vscode-azurecontainerapps",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        // Required by the workshop prereqs in README.md.
+        "chat.extensionTools.enabled": true,
+        // Both JDKs are registered so the Java extension picks the
+        // right one per project: JDK 8 for the starting state,
+        // JDK 21 after the Java upgrade migration step. JDK 8 is
+        // marked default to match the parent pom's <java.version>8.
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-1.8",
+            "path": "/usr/local/sdkman/candidates/java/current",
+            "default": true
+          },
+          {
+            "name": "JavaSE-21",
+            "path": "/usr/lib/jvm/msopenjdk-current"
+          }
+        ],
+        "java.import.maven.enabled": true,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  // Ensure shell scripts are executable (Windows hosts can lose +x on
+  // checkout) and print a quick environment summary so the user sees
+  // which JDK / Maven / Docker is active.
+  "postCreateCommand": "bash -lc 'chmod +x ./mvnw ./scripts/*.sh 2>/dev/null || true; echo \"--- JDKs ---\"; ls /usr/local/sdkman/candidates/java 2>/dev/null; /usr/lib/jvm/msopenjdk-current/bin/java -version 2>&1; echo \"--- Maven ---\"; ./mvnw -v; echo \"--- Docker ---\"; docker version --format \"{{.Client.Version}}\" 2>/dev/null || echo \"Docker socket not mounted yet\"; echo; echo \"To switch to JDK 21 in the shell: sdk use java <21-version> (or rely on java.configuration.runtimes in VS Code).\"'",
+  "remoteUser": "vscode"
+}
