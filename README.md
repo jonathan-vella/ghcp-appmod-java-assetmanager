@@ -2,12 +2,15 @@
 
 This document serves as a comprehensive workshop guide that will walk you through the process of migrating a Java application to Azure using GitHub Copilot app modernization. The workshop covers assessment, Java/framework upgrades, migration to Azure services, containerization, and deployment.
 
-**What the modernization Process Will Do:**
-The modernization will transform your application from the outdated technologies to a modern Azure-native solution. This includes upgrading from Java 8 to Java 21, migrating from Spring Boot 2.x to 3.x, replacing AWS S3 with Azure Blob Storage, switching from RabbitMQ to Azure Service Bus, migrating to Azure Database for PostgreSQL, implementing managed identity authentication, adding health checks, containerizing the applications, and preparing them for cloud deployment with proper monitoring.
+> **Security status:** This repository intentionally represents an insecure legacy starting point for a modernization demo. It includes known security issues, outdated dependencies, and password-based service authentication so GitHub Copilot app modernization can assess, report, and help remediate them during the workshop. Do not use this starting state as a production security baseline.
+
+**What the modernization process will do:**
+The modernization will transform your application from outdated and intentionally vulnerable technologies to a more secure Azure-native solution. This includes upgrading from Java 8 to Java 21, migrating from Spring Boot 2.x to 3.x, replacing AWS S3 with Azure Blob Storage, switching from RabbitMQ to Azure Service Bus, migrating to Azure Database for PostgreSQL, implementing managed identity authentication, addressing reported CVEs, adding health checks, containerizing the applications, and preparing them for cloud deployment with proper monitoring.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Current Security Status](#current-security-status)
 - [Current Architecture](#current-architecture)
 - [Run Locally](#run-locally)
 - [App Modernization](#app-modernization)
@@ -29,6 +32,19 @@ The [main](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/
 * PostgreSQL database for metadata storage, using password-based authentication
 
 In this workshop, you will use the **GitHub Copilot app modernization** extension to assess, upgrade, migrate, and finally deploy the project to Azure.
+
+## Current Security Status
+
+This branch is intentionally insecure. The application is designed to surface security findings in repository scans and during assessment so the workshop can demonstrate how modernization improves the security posture of a legacy Java application.
+
+The current starting state includes:
+
+* Outdated Java and Spring Boot versions with dependencies that may be reported as vulnerable.
+* Password-based authentication for AWS S3, RabbitMQ, and PostgreSQL instead of managed identity or workload identity patterns.
+* Plaintext configuration values used for local workshop setup and migration demonstration.
+* Missing cloud-readiness and operational hardening items, such as health endpoints and deployment-oriented security configuration.
+
+These issues and any related repository security reports are expected in this branch and should be treated as demo inputs for the modernization workflow. They are addressed later through the assessment, upgrade, CVE validation, service migration, containerization, and Azure deployment steps.
 
 **Time Estimates:**
 The complete workshop takes approximately **2 hours** to complete. Here's the breakdown for each major step:
@@ -114,7 +130,7 @@ class PostgreSQL db
 class Queue,RetryQueue queue
 class User user
 ```
-Password-based authentication
+The current architecture uses password-based service authentication as part of the intentionally insecure legacy baseline.
 
 ## Run Locally
 
@@ -125,7 +141,7 @@ git clone https://github.com/Azure-Samples/java-migration-copilot-samples.git
 cd java-migration-copilot-samples/asset-manager
 ```
 
-**Prerequisites**: 
+**Prerequisites**:
 - [JDK 8](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-8): Required for running the initial application locally.
 - [Maven 3.6.0+](https://maven.apache.org/install.html): Required to build the application locally.
 - [Docker](https://docs.docker.com/desktop/): Required for running the application locally.
@@ -152,7 +168,7 @@ To stop, run `stopapp.cmd` or `stopapp.sh` in the `scripts` directory.
 
 The following sections guide you through the process of modernizing the sample Java application `asset-manager` to Azure using GitHub Copilot app modernization.
 
-**Prerequisites**: 
+**Prerequisites**:
 - A GitHub account with [GitHub Copilot](https://github.com/features/copilot) enabled. A Pro, Pro+, Business, or Enterprise plan is required.
 - One of the following IDEs:
   - The latest version of [Visual Studio Code](https://code.visualstudio.com/). Must be version 1.101 or later.
@@ -260,7 +276,7 @@ Now that you have successfully migrated your Java application to use Azure servi
 > Note: If you encounter any issues with the previous migration step, you can directly proceed with the containerization step using the [workshop/expected](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/workshop/expected/asset-manager) branch.
 
 1. In the Activity sidebar, open the **GitHub Copilot app modernization** extension pane. In the **TASKS** section, expand **Common Tasks** > **Containerize Tasks** and click the run button for **Containerize Application**.
-  
+
     ![Run Containerize Application task](doc-media/containerization-run-task.png)
 
 1. A predefined prompt will be populated in the Copilot Chat panel with Agent Mode. Copilot Agent will start to analyze the workspace and to create a **containerization-plan.copiotmd** with the containerization plan.
