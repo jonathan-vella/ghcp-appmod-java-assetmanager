@@ -57,6 +57,9 @@ build/
 ### VS Code ###
 .vscode/
 
+# Endpoint DLP marker files are not portable on Windows because of ':' in the path.
+*:sec.endpointdlp
+
 /logs/
 .migrate-copilot/
 /pids/
