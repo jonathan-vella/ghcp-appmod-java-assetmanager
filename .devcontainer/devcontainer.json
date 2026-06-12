@@ -6,7 +6,7 @@
   // - docker-outside-of-docker requires the container and host to share the
   //   same chip architecture (no x86-on-arm emulation), which the multi-arch
   //   base image handles automatically.
-  "name": "Asset Manager — App Modernization Workshop",
+  "name": "GHCP AppMod Asset Manager",
   // Custom Dockerfile (see ./Dockerfile) layered on top of
   // mcr.microsoft.com/devcontainers/java:1-21-bookworm. It only removes the
   // base image's stale Yarn apt source so feature installs that run
@@ -42,10 +42,6 @@
     },
     // Azure Developer CLI (azd) — used by some deployment paths.
     "ghcr.io/azure/azure-dev/azd:latest": {},
-    // For the optional AKS deployment path described in the README.
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "minikube": "none"
-    },
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   // Workshop runs the web app at 8080 and the RabbitMQ management UI at 15672.

@@ -18,4 +18,25 @@ FROM mcr.microsoft.com/devcontainers/java:1-21-bookworm
 
 RUN rm -f /etc/apt/sources.list.d/yarn.list /etc/apt/sources.list.d/yarn.sources \
  && apt-get update \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --no-install-recommends curl ca-certificates bash-completion \
+ && rm -rf /var/lib/apt/lists/* \
+ && ARCH="$(dpkg --print-architecture)" \
+ && case "$ARCH" in \
+      amd64) KARCH=amd64 ;; \
+      arm64) KARCH=arm64 ;; \
+      *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;; \
+    esac \
+ && curl -fsSL "https://dl.k8s.io/release/v1.30.0/bin/linux/${KARCH}/kubectl" -o /usr/local/bin/kubectl \
+ && curl -fsSL "https://dl.k8s.io/release/v1.30.0/bin/linux/${KARCH}/kubectl.sha256" -o /tmp/kubectl.sha256 \
+ && echo "$(cat /tmp/kubectl.sha256)  /usr/local/bin/kubectl" | sha256sum -c - \
+ && chmod 0755 /usr/local/bin/kubectl \
+ && curl -fsSL "https://get.helm.sh/helm-v3.15.4-linux-${KARCH}.tar.gz" -o "/tmp/helm-v3.15.4-linux-${KARCH}.tar.gz" \
+ && curl -fsSL "https://get.helm.sh/helm-v3.15.4-linux-${KARCH}.tar.gz.sha256sum" -o /tmp/helm.sha256 \
+ && cd /tmp \
+ && sha256sum -c /tmp/helm.sha256 \
+ && tar -xzf "/tmp/helm-v3.15.4-linux-${KARCH}.tar.gz" -C /tmp \
+ && mv "/tmp/linux-${KARCH}/helm" /usr/local/bin/helm \
+ && chmod 0755 /usr/local/bin/helm \
+ && rm -rf /tmp/helm-v3.15.4-linux-${KARCH}.tar.gz /tmp/helm.sha256 /tmp/linux-${KARCH} /tmp/kubectl.sha256 \
+ && kubectl completion bash > /etc/bash_completion.d/kubectl \
+ && helm completion bash > /etc/bash_completion.d/helm

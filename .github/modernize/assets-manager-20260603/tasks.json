@@ -1,0 +1,213 @@
+{
+  "tasks": [
+    {
+      "id": "001-upgrade-java-version",
+      "type": "upgrade",
+      "description": "Upgrade Java Version",
+      "requirements": "Upgrade from Java 8 to Java 21 LTS. Update build configuration (pom.xml java.version property), compiler settings, and resolve any compatibility issues introduced by the version upgrade.",
+      "environmentConfiguration": null,
+      "kbId": "java-version-upgrade",
+      "skills": [
+        {
+          "name": "java-version-upgrade",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "002-upgrade-deprecated-apis",
+      "type": "upgrade",
+      "description": "Upgrade Deprecated APIs",
+      "requirements": "Update deprecated APIs including the java.annotation (Common Annotations) module which has been removed from OpenJDK 11. Replace javax.annotation imports with jakarta.annotation or add explicit dependencies for removed modules.",
+      "environmentConfiguration": null,
+      "kbId": "deprecated-api-upgrade",
+      "skills": [
+        {
+          "name": "deprecated-api-upgrade",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "003-transform-rabbitmq-to-servicebus",
+      "type": "transform",
+      "description": "Migrate from RabbitMQ(AMQP) to Azure Service Bus",
+      "requirements": "Replace Spring AMQP/RabbitMQ clients with Azure Service Bus SDK. Remove RabbitMQ connection strings, username, and password from configuration files. Use managed identity for authentication. Preserve manual acknowledgement semantics and retry/dead-letter queue behaviour.",
+      "environmentConfiguration": null,
+      "kbId": "amqp-rabbitmq-servicebus",
+      "skills": [
+        {
+          "name": "migration-amqp-rabbitmq-servicebus",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "004-transform-s3-to-azure-blob",
+      "type": "transform",
+      "description": "Migrate from AWS S3 to Azure Blob Storage",
+      "requirements": "Replace the AWS S3 SDK (AwsS3Service, S3FileProcessingService, AwsS3Config) with Azure Blob Storage SDK. Remove AWS credentials and region configuration. Use managed identity for authentication. Preserve existing StorageService and FileProcessor interface contracts.",
+      "environmentConfiguration": null,
+      "kbId": "s3-to-azure-blob-storage",
+      "skills": [
+        {
+          "name": "migration-s3-to-azure-blob-storage",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "005-transform-credentials-to-keyvault",
+      "type": "transform",
+      "description": "Migrate from Plaintext Credentials to Azure Key Vault",
+      "requirements": "Remove all plaintext passwords from application.properties files. Store secrets in Azure Key Vault and reference them via managed identity. Covers database passwords, service credentials, and any other sensitive configuration values.",
+      "environmentConfiguration": null,
+      "kbId": "plaintext-credential-to-azure-keyvault",
+      "skills": [
+        {
+          "name": "migration-plaintext-credential-to-azure-keyvault",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "006-transform-region-configuration",
+      "type": "transform",
+      "description": "Migrate from AWS Region Configuration to Azure Region Configuration",
+      "requirements": "Remove AWS region configuration properties (cloud.aws.region.static, cloud.aws.stack.auto) and associated AwsS3Config classes. Replace with appropriate Azure region configuration for Azure Blob Storage and other Azure services.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "007-transform-postgresql-managed-identity",
+      "type": "transform",
+      "description": "Secure Azure Database for PostgreSQL with Managed Identity",
+      "requirements": "Configure the application to connect to Azure Database for PostgreSQL using managed identity instead of password-based authentication. Update the PostgreSQL JDBC driver configuration and Spring Data JPA datasource settings in both web and worker modules.",
+      "environmentConfiguration": null,
+      "kbId": "mi-postgresql",
+      "skills": [
+        {
+          "name": "migration-mi-postgresql",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "008-security-hardcoded-credentials",
+      "type": "security",
+      "description": "Remove Hardcoded Credentials",
+      "requirements": "Remove default and well-known passwords detected in configuration files (web/src/main/resources/application.properties, worker/src/main/resources/application.properties). Replace with externalized configuration using environment variables or Azure Key Vault references.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "009-transform-local-resource-to-azure",
+      "type": "transform",
+      "description": "Migrate the Local Resource to Azure",
+      "requirements": "Migrate local JDBC calls (localhost:5432) and localhost RabbitMQ connections to Azure-hosted resources. Replace hardcoded localhost connection strings with environment-appropriate Azure service endpoints.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "010-transform-local-files-to-azure-storage",
+      "type": "transform",
+      "description": "Migrate to Azure Storage Account File Share mounts",
+      "requirements": "Replace local file system access using Java NIO (java.nio.file.Path, Files, Paths) with Azure Storage Account File Share mounts. Update LocalFileStorageService and LocalFileProcessingService to use mounted Azure File Share paths instead of direct local filesystem operations.",
+      "environmentConfiguration": null,
+      "kbId": "local-files-to-mounted-azure-storage",
+      "skills": [
+        {
+          "name": "migration-local-files-to-mounted-azure-storage",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "011-security-cwe-vulnerabilities",
+      "type": "security",
+      "description": "Scan and resolve CWE vulnerabilities",
+      "requirements": "Scan and resolve the following CWE vulnerabilities: CWE-665 (Improper Initialization), CWE-681 (Incorrect Conversion between Numeric Types), CWE-772 (Missing Release of Resource after Effective Lifetime), CWE-775 (Missing Release of File Descriptor or Handle after Effective Lifetime), CWE-789 (Memory Allocation with Excessive Size Value), CWE-1057 (Data Access Operations Outside of Expected Data Manager Component), CWE-259 (Use of Hard-coded Password), CWE-732 (Incorrect Permission Assignment for Critical Resource), CWE-778 (Insufficient Logging), CWE-798 (Use of Hard-coded Credentials), CWE-22 (Path Traversal), CWE-23 (Relative Path Traversal), CWE-36 (Absolute Path Traversal), CWE-434 (Unrestricted Upload of File with Dangerous Type), CWE-99 (Resource Injection).",
+      "environmentConfiguration": null,
+      "kbId": "scan-and-resolve-cwe-vulnerabilities",
+      "skills": [
+        {
+          "name": "scan-and-resolve-cwe-vulnerabilities",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "id": "012-security-cve-vulnerabilities",
+      "type": "security",
+      "description": "Resolve CVE issues by upgrading to secure, vulnerability-free versions",
+      "requirements": "Scan for and resolve all identified high-severity CVEs by upgrading vulnerable dependencies. Affected libraries may include: Spring Boot, Spring Framework, PostgreSQL JDBC driver, Apache Tomcat, Thymeleaf, Netty, Logback, Hibernate, Jackson, SnakeYAML, and other transitive dependencies.",
+      "environmentConfiguration": null,
+      "kbId": "scan-and-resolve-cve-vulnerabilities",
+      "skills": [
+        {
+          "name": "scan-and-resolve-cve-vulnerabilities",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "passUnitTests": "true"
+      }
+    }
+  ],
+  "metadata": {
+    "language": "java",
+    "planName": "Asset Manager Azure Modernization Plan",
+    "projectName": "assets-manager-parent",
+    "createdAt": "2026-06-03T12:30:00.000Z",
+    "assessmentReportId": "report-20260603121457",
+    "version": "1.0"
+  }
+}
