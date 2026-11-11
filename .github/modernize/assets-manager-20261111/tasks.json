@@ -1,0 +1,153 @@
+{
+  "tasks": [
+    {
+      "id": "001-upgrade-java-version",
+      "type": "upgrade",
+      "description": "Upgrade Java Version",
+      "requirements": "Upgrade Java 8 to Java 25 LTS as targeted by the report. Resolve and approve the framework/tooling compatibility path first; preserve inherited plugin versions and validate both modules.",
+      "environmentConfiguration": null,
+      "kbId": "java-version-upgrade",
+      "skills": [],
+      "dependsOn": [],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "002-upgrade-deprecated-apis",
+      "type": "upgrade",
+      "description": "Upgrade Deprecated APIs",
+      "requirements": "Resolve both Common Annotations removed-module incidents using APIs and namespaces appropriate to the approved Java 25/framework path; preserve lifecycle behavior.",
+      "environmentConfiguration": null,
+      "kbId": "deprecated-api-upgrade",
+      "skills": [],
+      "dependsOn": ["001-upgrade-java-version"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "003-transform-local-resource-to-azure",
+      "type": "transform",
+      "description": "Migrate the Local Resource to Azure",
+      "requirements": "Resolve Local JDBC Calls and Localhost Usage in both modules using Azure PostgreSQL and compatible Azure-hosted RabbitMQ. Confirm resources, authentication, TLS, data transfer, and endpoints before cutover. Externalize cloud configuration while preserving local development; do not replace RabbitMQ with Service Bus.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "dependsOn": ["002-upgrade-deprecated-apis"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "004-transform-local-files-to-azure-storage",
+      "type": "transform",
+      "description": "Migrate to Azure Storage Account File Share mounts",
+      "requirements": "Review all 14 NIO incidents. Mount the same Azure Files asset share in both apps, explicitly activate compatible profile-selected storage implementations and storageType values, and retain isolated disposable worker scratch files. Preserve storage interfaces, S3 backend, and thumbnail naming.",
+      "environmentConfiguration": null,
+      "kbId": "local-files-to-mounted-azure-storage",
+      "skills": [],
+      "dependsOn": ["002-upgrade-deprecated-apis"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "005-containerize-java-application",
+      "type": "containerization",
+      "description": "Containerize Java Application for Container Readiness",
+      "requirements": "Create web and worker Dockerfiles using root-reactor inputs and approved Java 25 images, non-root execution, no baked secrets, bounded scratch storage, and appropriate health/shutdown configuration. Verify images and document external database, broker, secret, and shared-mount configuration. Do not provision or deploy without approval.",
+      "environmentConfiguration": null,
+      "kbId": "containerization-copilot-agent",
+      "skills": [],
+      "dependsOn": [
+        "003-transform-local-resource-to-azure",
+        "004-transform-local-files-to-azure-storage",
+        "006-security-obsolete-apis",
+        "007-security-image-resource-safety",
+        "008-security-synchronization",
+        "009-security-credentials-logging",
+        "010-security-file-path-upload",
+        "011-security-command-injection"
+      ],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "006-security-obsolete-apis",
+      "type": "security",
+      "description": "Scan and resolve obsolete API usage",
+      "requirements": "Revalidate and resolve CWE-477 obsolete MVC/interceptor adapters without changing routing or logging behavior. Record rescan evidence.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-477"],
+      "dependsOn": ["002-upgrade-deprecated-apis"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "007-security-image-resource-safety",
+      "type": "security",
+      "description": "Scan and resolve numeric, allocation, and resource-release weaknesses",
+      "requirements": "Resolve CWE-681/CWE-682 through positive bounded aspect-preserving thumbnail dimensions; resolve CWE-772/CWE-775 through reliable stream/writer/handle cleanup on failures; resolve CWE-789 by checking overflow-safe decoded image limits before raster allocation. Test narrow images, limits, overflow, and injected I/O failures. Record rescan evidence.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-681", "CWE-682", "CWE-772", "CWE-775", "CWE-789"],
+      "dependsOn": ["002-upgrade-deprecated-apis"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "008-security-synchronization",
+      "type": "security",
+      "description": "Scan and resolve synchronization weaknesses",
+      "requirements": "Resolve CWE-662 metadata-commit/message-consumption ordering and CWE-820 partial shared-file publication. Verify across processes/replicas and actual Azure Files semantics; do not rely on JVM-only locks. Preserve manual ack/nack behavior and test deterministic concurrency cases. Record rescan evidence.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-662", "CWE-820"],
+      "dependsOn": ["003-transform-local-resource-to-azure", "004-transform-local-files-to-azure-storage"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "009-security-credentials-logging",
+      "type": "security",
+      "description": "Scan and resolve hard-coded credentials and insufficient logging",
+      "requirements": "Resolve CWE-259/CWE-798 confirmed embedded credentials using required external secrets without silent defaults; document owner-managed rotation. Resolve CWE-778 deletion/security failure logging while excluding secrets. Keep startup scripts consistent. Record rescan evidence.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-259", "CWE-778", "CWE-798"],
+      "dependsOn": ["003-transform-local-resource-to-azure"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "010-security-file-path-upload",
+      "type": "security",
+      "description": "Scan and resolve traversal, resource injection, and unsafe uploads",
+      "requirements": "Resolve CWE-22/CWE-23/CWE-36/CWE-99 through root-confined validation of upload names, HTTP keys, and worker message keys including symlink escapes. Resolve CWE-434 using server-side image format/signature/size validation before storage or publication, sharing the bounded decode policy from Task 007. Add isolated adversarial regressions and record rescan evidence.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-22", "CWE-23", "CWE-36", "CWE-434", "CWE-99"],
+      "dependsOn": ["004-transform-local-files-to-azure-storage", "007-security-image-resource-safety"],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    },
+    {
+      "id": "011-security-command-injection",
+      "type": "security",
+      "description": "Scan and resolve command and argument injection",
+      "requirements": "Resolve CWE-77/CWE-78/CWE-88 in cleanup resource-group argument parsing and command construction. Validate identifiers and argument boundaries without dynamic re-evaluation; keep shell/batch parity. Validate on Windows using a stubbed CLI, never real deletion. Record rescan evidence or an explicit environment blocker.",
+      "environmentConfiguration": null,
+      "kbId": null,
+      "skills": [],
+      "cweIds": ["CWE-77", "CWE-78", "CWE-88"],
+      "dependsOn": [],
+      "successCriteria": { "passBuild": "true", "passUnitTests": "true" }
+    }
+  ],
+  "metadata": {
+    "language": "java",
+    "planName": "Asset Manager Selected Assessment Migration Plan",
+    "projectName": "assets-manager-parent",
+    "reportId": "report-20261111082414",
+    "createdAt": "2026-11-11T09:42:42.713Z",
+    "version": "1.0",
+    "status": "proposed",
+    "targetJavaVersion": "25",
+    "targetComputeService": "azure-container-apps",
+    "targetOS": "linux",
+    "executionAuthorized": false
+  }
+}
